@@ -1,9 +1,154 @@
+// Define fetch
+class EasyHTTP {
+  // GET request
+  async get(url) {
+    const response = await fetch(url);
+    const resData = await response.json();
+    return resData;
+  }
+}
+
+// Init local fetch
+const http = new EasyHTTP();
+
+// Define UI variables
+const btn1 = document.querySelector("#vbtn-radio1");
+
+// Load event listener
+btn1.addEventListener("click", buildMonthlyFilteredChart);
+
+// Build monthly filtered chart
+function buildMonthlyFilteredChart() {
+  http
+    .get("./office-data.json")
+    .then((data) => {
+      monthlyFilteredChart(JSON.parse(data));
+    })
+    .catch((err) => console.log(err));
+}
+
+// Update monthly filtered chart
+function changeMonthFilteredChart(e) {
+  // Get month value
+  const newMonth = document.querySelector("#month-group").value;
+
+  // Update chart
+  http
+    .get("./office-data.json")
+    .then((data) => {
+      monthlyFilteredChart(JSON.parse(data), newMonth);
+    })
+    .catch((err) => console.log(err));
+}
+
+// Unique function
+function uniqueValues(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
+// Monthly filtered data processor
+function monthData(data, selectMonth) {
+  const targetDate = new Date(selectMonth).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+  });
+
+  const filteredData = data.filter((row) => {
+    const tmpDate = new Date(row.date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+    });
+
+    if (tmpDate === targetDate) {
+      return row;
+    }
+  });
+
+  // Datasets
+  const dataATL = {
+    label: "Atlanta",
+    borderColor: "#4dc9f6",
+    backgroundColor: "#4dc9f6",
+    tension: 0.1,
+    pointRadius: 0,
+    borderWidth: 2,
+    data: [],
+  };
+
+  const dataBOS = {
+    label: "Boston",
+    borderColor: "#f67019",
+    backgroundColor: "#f67019",
+    tension: 0.1,
+    pointRadius: 0,
+    borderWidth: 2,
+    data: [],
+  };
+
+  const dataPOR = {
+    label: "Portand",
+    borderColor: "#f53794",
+    backgroundColor: "#f53794",
+    tension: 0.1,
+    pointRadius: 0,
+    borderWidth: 2,
+    data: [],
+  };
+
+  const dataSEA = {
+    label: "Seattle",
+    borderColor: "#537bc4",
+    backgroundColor: "#537bc4",
+    tension: 0.1,
+    pointRadius: 0,
+    borderWidth: 2,
+    data: [],
+  };
+
+  filteredData.forEach((row) => {
+    dataATL.data.push({
+      x: new Date(row.date).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+      y: row.Atlanta,
+    });
+    dataBOS.data.push({
+      x: new Date(row.date).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+      y: row.Boston,
+    });
+    dataPOR.data.push({
+      x: new Date(row.date).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+      y: row.Portland,
+    });
+    dataSEA.data.push({
+      x: new Date(row.date).toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+      }),
+      y: row.Seattle,
+    });
+  });
+
+  return [dataATL, dataBOS, dataPOR, dataSEA];
+}
+
 // Monthly filtered chart
-function monthlyFilteredChart(data) {
+function monthlyFilteredChart(data, selectedMonth) {
+  // Delete disposable div
   if (document.querySelector("#disposable") !== null) {
     document.querySelector("#disposable").remove();
   }
-
   // Select main div
   const mainDiv = document.querySelector("#main-div");
 
@@ -27,7 +172,6 @@ function monthlyFilteredChart(data) {
   const select = document.createElement("select");
   select.className = "form-select";
   select.setAttribute("id", "month-group");
-  select.setAttribute("onchange", "changeMonthFilteredChart()");
   dropdownDiv.appendChild(select);
 
   // Add canvas
@@ -38,11 +182,6 @@ function monthlyFilteredChart(data) {
   dispDiv.appendChild(dropdownDiv);
   dispDiv.appendChild(newCanvas);
   mainDiv.appendChild(dispDiv);
-
-  // Unique function
-  function uniqueValues(value, index, self) {
-    return self.indexOf(value) === index;
-  }
 
   // All month names
   let months = data
@@ -68,120 +207,25 @@ function monthlyFilteredChart(data) {
     // Add label
     option.innerHTML = month;
 
+    if (month === selectedMonth) {
+      option.setAttribute("selected", "selected");
+    }
     // Append option to list
     monthList.appendChild(option);
   });
 
-  // Data processor
-  function monthData(selectMonth) {
-    const targetDate = new Date(selectMonth).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-    });
-
-    const filteredData = data.filter((row) => {
-      const tmpDate = new Date(row.date).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-      });
-
-      if (tmpDate === targetDate) {
-        return row;
-      }
-    });
-
-    console.log(filteredData);
-
-    // Datasets
-    const dataATL = {
-      label: "ATL",
-      borderColor: "#4dc9f6",
-      backgroundColor: "#4dc9f6",
-      tension: 0.1,
-      pointRadius: 0,
-      borderWidth: 2,
-      data: [],
-    };
-
-    const dataBOS = {
-      label: "BOS",
-      borderColor: "#f67019",
-      backgroundColor: "#f67019",
-      tension: 0.1,
-      pointRadius: 0,
-      borderWidth: 2,
-      data: [],
-    };
-
-    const dataPOR = {
-      label: "POR",
-      borderColor: "#f53794",
-      backgroundColor: "#f53794",
-      tension: 0.1,
-      pointRadius: 0,
-      borderWidth: 2,
-      data: [],
-    };
-
-    const dataSEA = {
-      label: "SEA",
-      borderColor: "#537bc4",
-      backgroundColor: "#537bc4",
-      tension: 0.1,
-      pointRadius: 0,
-      borderWidth: 2,
-      data: [],
-    };
-
-    filteredData.forEach((row) => {
-      dataATL.data.push({
-        x: new Date(row.date).toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-        y: row.Atlanta,
-      });
-      dataBOS.data.push({
-        x: new Date(row.date).toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-        y: row.Boston,
-      });
-      dataPOR.data.push({
-        x: new Date(row.date).toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-        y: row.Portland,
-      });
-      dataSEA.data.push({
-        x: new Date(row.date).toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-        y: row.Seattle,
-      });
-    });
-
-    console.log(dataATL);
-
-    return [dataATL, dataBOS, dataPOR, dataSEA];
-  }
+  // Add event listener
+  document.querySelector("#month-group").addEventListener("change", changeMonthFilteredChart);
 
   // Set month to filter data to
-  const filteredMonth = months[0];
+  const filteredMonth = selectedMonth === undefined ? months[0] : selectedMonth;
 
   const monthlyChart = document.getElementById("main-chart").getContext("2d");
 
-  const monthlyLChart = new Chart(monthlyChart, {
+  new Chart(monthlyChart, {
     type: "line",
     data: {
-      datasets: monthData((selectMonth = filteredMonth)),
+      datasets: monthData(data, filteredMonth),
     },
     options: {
       responsive: true,
