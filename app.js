@@ -64,46 +64,46 @@ function monthData(data, selectMonth) {
     }
   });
 
-  // Datasets
-  const dataATL = {
-    label: "Atlanta",
-    borderColor: "#4dc9f6",
-    backgroundColor: "#4dc9f6",
-    tension: 0.1,
-    pointRadius: 0,
-    borderWidth: 2,
-    data: [],
-  };
+  // Dataset class
+  class cityData {
+    constructor(label, borderColor, backgroundColor, data) {
+      this.label = label;
+      this.borderColor = borderColor;
+      this.backgroundColor = backgroundColor;
+      this.data = data;
+      this.tension = 0.1;
+      this.pointRadius = 0;
+      this.borderWidth = 2;
+    }
+  }
 
-  const dataBOS = {
-    label: "Boston",
-    borderColor: "#f67019",
-    backgroundColor: "#f67019",
-    tension: 0.1,
-    pointRadius: 0,
-    borderWidth: 2,
-    data: [],
-  };
+  const dataATL = new cityData(
+    (label = "Atlanta"),
+    (borderColor = "#4dc9f6"),
+    (backgroundColor = "#4dc9f6"),
+    (data = [])
+  );
 
-  const dataPOR = {
-    label: "Portand",
-    borderColor: "#f53794",
-    backgroundColor: "#f53794",
-    tension: 0.1,
-    pointRadius: 0,
-    borderWidth: 2,
-    data: [],
-  };
+  const dataBOS = new cityData(
+    (label = "Boston"),
+    (borderColor = "#f67019"),
+    (backgroundColor = "#f67019"),
+    (data = [])
+  );
 
-  const dataSEA = {
-    label: "Seattle",
-    borderColor: "#537bc4",
-    backgroundColor: "#537bc4",
-    tension: 0.1,
-    pointRadius: 0,
-    borderWidth: 2,
-    data: [],
-  };
+  const dataPOR = new cityData(
+    (label = "Portand"),
+    (borderColor = "#f53794"),
+    (backgroundColor = "#f53794"),
+    (data = [])
+  );
+
+  const dataSEA = new cityData(
+    (label = "Seattle"),
+    (borderColor = "#537bc4"),
+    (backgroundColor = "#537bc4"),
+    (data = [])
+  );
 
   filteredData.forEach((row) => {
     dataATL.data.push({
