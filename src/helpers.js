@@ -1,3 +1,5 @@
+import { Chart, Colors } from "chart.js/auto";
+
 // Unique function
 function uniqueValues(value, index, self) {
   return self.indexOf(value) === index;
@@ -21,4 +23,44 @@ function formatDate(date, type) {
   }
 }
 
-export { formatDate, uniqueValues };
+class City {
+  constructor(cityName) {
+    this.label = cityName;
+    this.data = [];
+    this.tension = 0.1;
+    this.pointRadius = 0;
+    this.borderWidth = 2;
+  }
+
+  set _data(addData) {
+    this.data.push(addData);
+  }
+}
+
+function drawChart(chart, data) {
+  return new Chart(chart, {
+    type: "line",
+    data: {
+      datasets: data,
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: `Daily Occupancy:`,
+        },
+      },
+    },
+  });
+}
+
+export { formatDate, uniqueValues, City, drawChart };
