@@ -1,8 +1,7 @@
-import React from "react";
 import { useState, useEffect } from "react";
-import Chart from "chart.js/auto";
-import ChartData from "./ChartData";
-import { uniqueValues, formatDate } from "../helpers";
+import { uniqueValues, formatDate, City, drawChart } from "../helpers";
+import { Chart, Colors } from "chart.js/auto";
+import ChartData from "../data/ChartData";
 
 function ChartCanvas() {
   const [month, setMonth] = useState("January 2021");
@@ -13,56 +12,23 @@ function ChartCanvas() {
       return formatDate(row.date, "month") === targetDate;
     });
 
-    // City object
-    const cityProps = {
-      Atlanta: {
-        label: "Atlanta",
-        borderColor: "#34568B",
-        backgroundColor: "#34568B",
-        data: [],
-        tension: 0.1,
-        pointRadius: 0,
-        borderWidth: 2,
-      },
-      Boston: {
-        label: "Boston",
-        borderColor: "#FF6F61",
-        backgroundColor: "#FF6F61",
-        data: [],
-        tension: 0.1,
-        pointRadius: 0,
-        borderWidth: 2,
-      },
-      Portland: {
-        label: "Portland",
-        borderColor: "#6B5B95",
-        backgroundColor: "#6B5B95",
-        data: [],
-        tension: 0.1,
-        pointRadius: 0,
-        borderWidth: 2,
-      },
-      Seattle: {
-        label: "Seattle",
-        borderColor: "#88B04B",
-        backgroundColor: "#88B04B",
-        data: [],
-        tension: 0.1,
-        pointRadius: 0,
-        borderWidth: 2,
-      },
-    };
+    const cities = ["Atlanta", "Boston", "Portland", "Seattle"];
+    const cityProps = {};
 
-    const cities = Object.keys(cityProps);
-    filteredData.forEach((row) => {
+    cities.forEach((city) => {
+      cityProps[city] = new City(city);
+    });
+
+    filteredData.forEach((row, index) => {
       for (let city of cities) {
         const formattedDate = formatDate(row.date, "day");
-        cityProps[city].data.push({
+        cityProps[city]._data = {
           x: formattedDate,
           y: row[city],
-        });
+        };
       }
     });
+
     // Delete disposable div
     if (document.querySelector("#main-chart") !== null) {
       document.querySelector("#main-chart").remove();
@@ -102,29 +68,7 @@ function ChartCanvas() {
     // Chart
     const monthlyChart = newCanvas.getContext("2d");
 
-    new Chart(monthlyChart, {
-      type: "line",
-      data: {
-        datasets: Object.values(cityProps),
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-          },
-        },
-        plugins: {
-          legend: {
-            position: "top",
-          },
-          title: {
-            display: true,
-            text: `Daily Occupancy:`,
-          },
-        },
-      },
-    });
+    drawChart(monthlyChart, Object.values(cityProps));
   }, [month]);
 
   const handleSelect = (e) => {
@@ -135,7 +79,7 @@ function ChartCanvas() {
   return (
     <div id="main-div">
       <div id="month">
-        <label htmlFor="month-group">Month</label>
+        <label htmlFor="month-group"></label>
         <select id="month-group" onChange={handleSelect} value={month}></select>
       </div>
     </div>
