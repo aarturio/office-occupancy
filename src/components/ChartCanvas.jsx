@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { uniqueValues, formatDate, City, drawChart } from "../helpers";
-import { Chart, Colors } from "chart.js/auto";
 import ChartData from "../data/ChartData";
 
 function ChartCanvas() {
