@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { formatDate, City, drawChart } from "../helpers";
+import { formatDate, City } from "../helpers";
 import ChartData from "../data/ChartData";
 import { Chart } from "chart.js/auto";
 
