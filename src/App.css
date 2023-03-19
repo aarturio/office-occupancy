@@ -1,6 +1,15 @@
 .App {
   display: block;
   width: 80%;
-  margin: 50px auto;
-  min-width: 800px;
+  margin: 30px auto;
+  min-width: 578px;
+}
+
+.card {
+  padding: 0px 30px 30px 30px;
+}
+
+#month-select,
+#title {
+  padding-bottom: 30px;
 }

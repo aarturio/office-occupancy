@@ -1,88 +1,74 @@
-import { useState, useEffect } from "react";
-import { uniqueValues, formatDate, City, drawChart } from "../helpers";
+import { useState, useEffect, useRef } from "react";
+import { formatDate, City, drawChart } from "../helpers";
 import ChartData from "../data/ChartData";
+import { Chart } from "chart.js/auto";
 
-function ChartCanvas() {
-  const [month, setMonth] = useState("January 2021");
-  useEffect(() => {
-    const targetDate = formatDate(month, "month");
+function ChartCanvas({ month }) {
+  const [chart, setChart] = useState(null);
+  const canvasRef = useRef(null);
 
-    const filteredData = ChartData.filter((row) => {
-      return formatDate(row.date, "month") === targetDate;
-    });
+  const targetDate = formatDate(month, "month");
 
-    const cities = ["Atlanta", "Boston", "Portland", "Seattle"];
-    const cityProps = {};
+  const filteredData = ChartData.filter((row) => {
+    return formatDate(row.date, "month") === targetDate;
+  });
 
-    cities.forEach((city) => {
-      cityProps[city] = new City(city);
-    });
+  const cities = ["Atlanta", "Boston", "Portland", "Seattle"];
+  const cityProps = {};
 
-    filteredData.forEach((row, index) => {
-      for (let city of cities) {
-        const formattedDate = formatDate(row.date, "day");
-        cityProps[city]._data = {
-          x: formattedDate,
-          y: row[city],
-        };
-      }
-    });
+  cities.forEach((city) => {
+    cityProps[city] = new City(city);
+  });
 
-    // Delete disposable div
-    if (document.querySelector("#main-chart") !== null) {
-      document.querySelector("#main-chart").remove();
+  filteredData.forEach((row) => {
+    for (let city of cities) {
+      const formattedDate = formatDate(row.date, "day");
+      cityProps[city]._data = {
+        x: formattedDate,
+        y: row[city],
+      };
     }
-    // Select main div
-    const mainDiv = document.querySelector("#main-div");
+  });
 
-    // Add canvas
-    const newCanvas = document.createElement("canvas");
-    newCanvas.setAttribute("id", "main-chart");
-    mainDiv.appendChild(newCanvas);
+  useEffect(() => {
+    if (chart) {
+      chart.destroy();
+    }
 
-    // Month and year labels
-    const months = ChartData.map((row) => {
-      return formatDate(row.date, "month");
-    }).filter(uniqueValues);
+    const ctx = canvasRef.current.getContext("2d");
 
-    // Get dropdown div
-    const monthList = document.querySelector("#month-group");
-    monthList.innerHTML = "";
+    let newChart = null;
 
-    // Add months to filter
-    months.forEach((element) => {
-      // Create option element
-      const option = document.createElement("option");
-
-      // Add value
-      option.value = element;
-
-      // Add label
-      option.innerHTML = element;
-
-      // Append option to list
-      monthList.appendChild(option);
+    newChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        datasets: Object.values(cityProps),
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+          },
+        },
+        plugins: {
+          legend: {
+            position: "top",
+          },
+        },
+      },
     });
 
-    // Chart
-    const monthlyChart = newCanvas.getContext("2d");
+    setChart(newChart);
 
-    drawChart(monthlyChart, Object.values(cityProps));
+    return () => {
+      if (newChart) {
+        newChart.destroy();
+      }
+    };
   }, [month]);
 
-  const handleSelect = (e) => {
-    e.preventDefault();
-    setMonth(e.target.value);
-  };
-
-  return (
-    <div id="main-div">
-      <div id="month">
-        <label htmlFor="month-group"></label>
-        <select id="month-group" onChange={handleSelect} value={month}></select>
-      </div>
-    </div>
-  );
+  return <canvas id="chart" ref={canvasRef}></canvas>;
 }
 
 export default ChartCanvas;

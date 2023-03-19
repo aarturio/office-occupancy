@@ -1,5 +1,3 @@
-import { Chart } from "chart.js/auto";
-
 // Unique function
 function uniqueValues(value, index, self) {
   return self.indexOf(value) === index;
@@ -37,30 +35,4 @@ class City {
   }
 }
 
-function drawChart(chart, data) {
-  return new Chart(chart, {
-    type: "line",
-    data: {
-      datasets: data,
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-      plugins: {
-        legend: {
-          position: "top",
-        },
-        title: {
-          display: true,
-          text: `Daily Occupancy:`,
-        },
-      },
-    },
-  });
-}
-
-export { formatDate, uniqueValues, City, drawChart };
+export { formatDate, uniqueValues, City };
