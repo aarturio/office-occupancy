@@ -1,11 +1,13 @@
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import { formatDate, City } from "../helpers";
 import ChartData from "../data/ChartData";
 import { Chart } from "chart.js/auto";
 
 function ChartCanvas({ month }) {
-  const canvasRef = useRef(null);
+  // canvas reference
+  const canvasRef = useRef();
 
+  // draw chart
   useEffect(() => {
     const filteredData = ChartData.filter((row) => {
       return formatDate(row.date, "month") === formatDate(month, "month");
@@ -56,7 +58,11 @@ function ChartCanvas({ month }) {
     };
   }, [month]);
 
-  return <canvas id="chart" ref={canvasRef}></canvas>;
+  return (
+    <Fragment>
+      <canvas id="chart" ref={canvasRef}></canvas>
+    </Fragment>
+  );
 }
 
 export default ChartCanvas;
